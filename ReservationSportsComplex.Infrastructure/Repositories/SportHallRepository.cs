@@ -46,12 +46,16 @@ namespace ReservationSportsComplex.Infrastructure.Repositories
 
         public async Task<List<SportHall>> GetAllAsync()
         {
-            return await _context.SportHalls.ToListAsync();
+            return await _context.SportHalls
+                .Include(x=>x.TimeSlots)
+                .ToListAsync();
         }
 
         public async Task<SportHall?> GetByIdAsync(Guid id)
         {
-            return await _context.SportHalls.FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.SportHalls
+                .Include(x=>x.TimeSlots.OrderBy(t=>t.StartTime))
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<SportHall?> UpdateAsync(Guid id, SportHall hall)

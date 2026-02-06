@@ -1,32 +1,20 @@
-﻿using ReservationSportsComplex.Domain.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReservationSportsComplex.Domain.Entities.Model
+namespace ReservationSportsComplex.Application.DTOs
 {
-    public class TimeSlot 
+    public class TimeSlotDTO
     {
         public Guid Id { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public bool IsReserved { get; set; }
         public Guid SportHallId { get; set; }
-        public SportHall SportHall { get; set; } = null!;
         public int CurrentRegistrations { get; set; }
-
-        public int RemainingCapacity => SportHall.MaxCapacity - CurrentRegistrations;
-
-        public bool IsAvailable => RemainingCapacity > 0;
-
-
-
-
-
-
-
-
+        public int RemainingCapacity { get; set; } 
+        public bool IsAvailable { get; set; }
     }
 }

@@ -17,6 +17,6 @@ namespace ReservationSportsComplex.Application.DTOs
         public int MaxCapacity { get; set; }
         public decimal Price { get; set; }
         public HallType Type { get; set; }
-        public ICollection<TimeSlot> TimeSlots { get; set; } = new List<TimeSlot>();
+        public ICollection<TimeSlotDTO> TimeSlots { get; set; } = new List<TimeSlotDTO>();
     }
 }

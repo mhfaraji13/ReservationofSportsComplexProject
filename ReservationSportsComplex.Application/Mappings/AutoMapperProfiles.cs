@@ -16,6 +16,10 @@ namespace ReservationSportsComplex.Application.Mappings
             CreateMap<SportHall, AddSportHallDTO>().ReverseMap();
             CreateMap<SportHall, SportHallDTO>().ReverseMap();
             CreateMap<SportHall, UpdateSportHallDTO>().ReverseMap();
+            CreateMap<TimeSlot, TimeSlotDTO>()
+                .ForMember(dest => dest.RemainingCapacity, opt => opt.MapFrom(src => src.RemainingCapacity))
+                .ForMember(dest => dest.IsAvailable, opt => opt.MapFrom(src => src.IsAvailable))
+                .ReverseMap();
         }
     }
 }
