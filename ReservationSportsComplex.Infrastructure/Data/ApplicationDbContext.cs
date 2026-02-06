@@ -24,6 +24,8 @@ namespace ReservationSportsComplex.Infrastructure.Data
 
         public DbSet<Booking> Bookings => Set<Booking>();
 
+        public DbSet<Wallet> Wallets => Set<Wallet>();
+
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
@@ -40,13 +42,19 @@ namespace ReservationSportsComplex.Infrastructure.Data
          .Property(b => b.FinalAmount)
          .HasColumnType("decimal(18,2)");
 
-            modelBuilder.Entity<User>()
-         .Property(u => u.WalletBalance)
-         .HasColumnType("decimal(18,2)");
-
             modelBuilder.Entity<SportHall>()
          .Property(s => s.Price)
          .HasColumnType("decimal(18,2)");
+
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Wallet)
+                .WithOne(w => w.User)
+                .HasForeignKey<Wallet>(w => w.UserId);
+
+            modelBuilder.Entity<Wallet>()
+                .Property(w => w.Balance)
+                .HasColumnType("decimal(18,2)");
         }
     }
 }

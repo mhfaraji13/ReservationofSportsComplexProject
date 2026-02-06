@@ -16,13 +16,15 @@ namespace ReservationSportsComplex.Domain.Entities.Model
         public string Email { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
 
+        public Wallet Wallet { get; set; } = null!;
+
 
 
         public string PasswordHash { get; set; } = string.Empty;
         public string Salt { get; set; } = string.Empty;
 
 
-        public decimal WalletBalance { get; set; } = 0;
+        
         public DateTime? LastLoginDate { get; set; }
 
 

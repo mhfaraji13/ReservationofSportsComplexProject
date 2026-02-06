@@ -19,6 +19,7 @@ provider.GetRequiredService<ApplicationDbContext>());
 
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<ISportHall, SportHallRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 

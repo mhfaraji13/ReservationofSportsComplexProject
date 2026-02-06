@@ -32,8 +32,13 @@ namespace ReservationSportsComplex.Application.Services
 
         public async Task<Booking> CreateBookingAsync(Guid userId, Guid timeSlotId)
         {
-            var user = await this.applicationDbContext.Users.FindAsync(userId);
-            var slot = await this.applicationDbContext.TimeSlots.Include(s => s.SportHall)
+            var user = await this.applicationDbContext.Users
+                .Include(u=>u.Wallet)
+                .FirstOrDefaultAsync(u=>u.Id == userId);
+
+
+            var slot = await this.applicationDbContext.TimeSlots
+                .Include(s => s.SportHall)
                 .FirstOrDefaultAsync(s=> s.Id == timeSlotId);
 
 
@@ -41,10 +46,10 @@ namespace ReservationSportsComplex.Application.Services
                 throw new Exception("کاربر یا سانس یافت نشد !");
 
 
-            if (user.WalletBalance < slot.SportHall.Price)
+            if (user.Wallet.Balance < slot.SportHall.Price)
                 throw new Exception("موجودی کیف پول کافی نیست !");
 
-            user.WalletBalance -= slot.SportHall.Price;
+            user.Wallet.Balance -= slot.SportHall.Price;
             slot.CurrentRegistrations += 1;
 
             var booking = new Booking
