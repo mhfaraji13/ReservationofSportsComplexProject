@@ -1,4 +1,4 @@
-﻿using ReservationSportsComplex.Domain.Common;
+﻿using ReservationSportsComplex.Domain.Entities.Model;
 using ReservationSportsComplex.Domain.Enums;
 using System;
 using System.Collections.Generic;
@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReservationSportsComplex.Domain.Entities.Model
+namespace ReservationSportsComplex.Application.DTOs
 {
-    public class SportHall 
+    public class SportHallDTO
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;

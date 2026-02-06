@@ -1,7 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using ReservationSportsComplex.Application.Interfaces;
+using ReservationSportsComplex.Application.Mappings;
 using ReservationSportsComplex.Application.Services;
+using ReservationSportsComplex.Domain.Interfaces;
 using ReservationSportsComplex.Infrastructure.Data;
+using ReservationSportsComplex.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +18,9 @@ builder.Services.AddScoped<IApplicationDbContext>(provider =>
 provider.GetRequiredService<ApplicationDbContext>());
 
 builder.Services.AddScoped<IReservationService, ReservationService>();
+builder.Services.AddScoped<ISportHall, SportHallRepository>();
 
+builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -7,20 +7,22 @@ using System.Threading.Tasks;
 
 namespace ReservationSportsComplex.Domain.Entities.Model
 {
-    public class TimeSlot : BaseEntity
+    public class TimeSlot 
     {
-        public Guid SportHallId { get; set; }
-        public SportHall SportHall { get; set; } = null!;
-
-
+        public Guid Id { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
-
+        public Guid SportHallId { get; set; }
+        public SportHall SportHall { get; set; } = null!;
         public int CurrentRegistrations { get; set; }
 
         public int RemainingCapacity => SportHall.MaxCapacity - CurrentRegistrations;
 
-        public bool IsAvailable => RemainingCapacity > 0; 
+        public bool IsAvailable => RemainingCapacity > 0;
+
+
+
+
 
 
 

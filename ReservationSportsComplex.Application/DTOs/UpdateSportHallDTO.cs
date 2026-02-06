@@ -1,22 +1,19 @@
-﻿using ReservationSportsComplex.Domain.Common;
-using ReservationSportsComplex.Domain.Enums;
+﻿using ReservationSportsComplex.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReservationSportsComplex.Domain.Entities.Model
+namespace ReservationSportsComplex.Application.DTOs
 {
-    public class SportHall 
+    public class UpdateSportHallDTO
     {
-        public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string ImageURL { get; set; } = string.Empty;
         public int MaxCapacity { get; set; }
         public decimal Price { get; set; }
         public HallType Type { get; set; }
-        public ICollection<TimeSlot> TimeSlots { get; set; } = new List<TimeSlot>();
     }
 }

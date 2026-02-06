@@ -8,23 +8,17 @@ using System.Threading.Tasks;
 
 namespace ReservationSportsComplex.Domain.Entities.Model
 {
-    public class Booking : BaseEntity
+    public class Booking 
     {
-
-       
-        public Guid TimeSlotId { get; set; }
-        public TimeSlot TimeSlot { get; set; } = null!;
-
-        public Guid UserId { get; set; }
-        public User User { get; set; }
-
+        public Guid Id { get; set; }
         public DateTime BookingDate { get; set; }
         public decimal FinalAmount { get; set; }
         public BookingStatus Status { get; set; } = BookingStatus.Pending;
-
-
         public string? PaymentReference { get; set; }
-
+        public Guid TimeSlotId { get; set; }
+        public Guid UserId { get; set; }
+        public User User { get; set; }
+        public TimeSlot TimeSlot { get; set; } = null!;
 
     }
 }
