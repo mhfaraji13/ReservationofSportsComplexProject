@@ -54,9 +54,10 @@ namespace ReservationSportsComplex.Application.Services
 
             var booking = new Booking
             {
+                Id =  Guid.NewGuid(),
                 UserId = userId,
                 TimeSlotId = timeSlotId,
-                BookingDate = DateTime.UtcNow,
+                BookingDate = DateTime.Now,
                 FinalAmount = slot.SportHall.Price,
                 Status = Domain.Enums.BookingStatus.Confirmed
             };

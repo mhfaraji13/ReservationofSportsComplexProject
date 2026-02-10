@@ -3,6 +3,8 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ReservationSportsComplex.Application.DTOs;
 using ReservationSportsComplex.Application.Interfaces;
 
 namespace ReservationSportsComplex.API.Controllers
@@ -12,10 +14,12 @@ namespace ReservationSportsComplex.API.Controllers
     public class BookingController : ControllerBase
     {
         private readonly IReservationService _reservationService;
+        private readonly IApplicationDbContext _context;
 
-        public BookingController(IReservationService reservationService)
+        public BookingController(IReservationService reservationService , IApplicationDbContext context)
         {
             _reservationService = reservationService;
+            _context = context;
         }
 
         [HttpPost]
@@ -41,6 +45,33 @@ namespace ReservationSportsComplex.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpGet]
+        [Route("My Bookings")]
+        [Authorize(Roles = "Customer")]
+
+        public async Task<IActionResult> GetMyBookings()
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            
+            var bookings = await _context.Bookings
+                .Include(b=>b.TimeSlot)
+                .ThenInclude(ts=>ts.SportHall)
+                .Where(b=>b.UserId==userId)
+                .OrderByDescending(b=>b.BookingDate)
+                .Select(b=>new UserBookingDTO
+                {
+                    BookingId = b.Id,
+                    SportHallName =  b.TimeSlot.SportHall.Name,
+                    StartTime = b.TimeSlot.StartTime,
+                    EndTime = b.TimeSlot.EndTime,
+                    PaidAmount = b.FinalAmount,
+                    ReservedAt = b.BookingDate
+                })
+                .ToListAsync();
+            
+            return Ok(bookings);
         }
     }
 }
