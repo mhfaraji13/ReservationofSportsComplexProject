@@ -1,0 +1,14 @@
+﻿using ReservationSportsComplex.Domain.Entities.Model;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ReservationSportsComplex.Application.Interfaces
+{
+    public interface IJWTTokenGenerator
+    {
+        string GenerateToken(User user);
+    }
+}

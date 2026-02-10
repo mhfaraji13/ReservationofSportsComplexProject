@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ReservationSportsComplex.Application.Interfaces;
@@ -22,6 +23,7 @@ namespace ReservationSportsComplex.API.Controllers
         }
 
         [HttpPost("{id}/generate-daily-slots")]
+        [Authorize(Roles = "Admin")]
 
         public async Task<IActionResult> GenerateSlots(Guid id, DateTime date,
             [FromServices] IReservationService resrReservationService)
