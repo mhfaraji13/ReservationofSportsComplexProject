@@ -14,6 +14,7 @@ namespace ReservationSportsComplex.Application.Interfaces
         DbSet<SportHall> SportHalls { get; }
         DbSet<TimeSlot> TimeSlots { get; }
         DbSet<Booking> Bookings { get; }
+        DbSet<Wallet> Wallets { get; }
 
         Task<int> SaveChangesAsync (CancellationToken cancellationToken);
     }
