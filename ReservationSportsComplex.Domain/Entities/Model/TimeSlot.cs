@@ -17,6 +17,8 @@ namespace ReservationSportsComplex.Domain.Entities.Model
         public SportHall SportHall { get; set; } = null!;
         public int CurrentRegistrations { get; set; }
 
+        public decimal Price { get; set; }
+
         public int RemainingCapacity => SportHall.MaxCapacity - CurrentRegistrations;
 
         public bool IsAvailable => RemainingCapacity > 0;
