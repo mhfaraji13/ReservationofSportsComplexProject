@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ReservationSportsComplex.Application.DTOs;
 using ReservationSportsComplex.Application.Interfaces;
 using ReservationSportsComplex.Domain.Entities.Model;
@@ -14,11 +15,13 @@ namespace ReservationSportsComplex.API.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IJWTTokenGenerator tokenGenerator;
+        private readonly IApplicationDbContext _context;
 
-        public AuthController(IUserRepository userRepository , IJWTTokenGenerator tokenGenerator)
+        public AuthController(IUserRepository userRepository , IJWTTokenGenerator tokenGenerator , IApplicationDbContext context)
         {
             _userRepository = userRepository;
             this.tokenGenerator = tokenGenerator;
+            _context = context;
         }
 
         [HttpPost]
@@ -77,6 +80,46 @@ namespace ReservationSportsComplex.API.Controllers
             var token = tokenGenerator.GenerateToken(user);
 
             return Ok(new { Token = token , Message = "Welcome" });
+        }
+        
+        [HttpPost("forgot-password-request")]
+        public async Task<IActionResult> ForgotPasswordRequest([FromBody] ForgotPasswordDTO.ForgotPasswordRequest request)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.PhoneNumber == request.PhoneNumber);
+            if (user == null) return NotFound("User with this phone number not found.");
+
+            
+            var otpCode = new Random().Next(100000, 999999).ToString();
+    
+            user.VerificationCode = otpCode;
+            user.VerificationCodeExpiry = DateTime.Now.AddMinutes(5); 
+
+            await _context.SaveChangesAsync(default);
+
+            
+            return Ok(new { Message = "Verification code sent (Check Console/API Response for testing).", DebugCode = otpCode });
+        }
+
+        [HttpPost("verify-and-reset-password")]
+        public async Task<IActionResult> VerifyAndReset([FromBody] ForgotPasswordDTO.VerifyOtpRequest request)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => 
+                u.PhoneNumber == request.PhoneNumber && 
+                u.VerificationCode == request.Code);
+
+            if (user == null || user.VerificationCodeExpiry < DateTime.Now)
+            {
+                return BadRequest("Invalid or expired verification code.");
+            }
+            
+            user.PasswordHash = PasswordHasher.HashPassword(request.NewPassword, user.Salt);
+    
+            user.VerificationCode = null;
+            user.VerificationCodeExpiry = null;
+
+            await _context.SaveChangesAsync(default);
+
+            return Ok("Password has been reset successfully. Now you can login with your new password.");
         }
     }
 }

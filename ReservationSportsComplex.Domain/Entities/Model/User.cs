@@ -19,6 +19,10 @@ namespace ReservationSportsComplex.Domain.Entities.Model
         public Wallet Wallet { get; set; } = null!;
 
 
+        public string? VerificationCode { get; set; }
+        public DateTime? VerificationCodeExpiry { get; set; }
+
+
 
         public string PasswordHash { get; set; } = string.Empty;
         public string Salt { get; set; } = string.Empty;
