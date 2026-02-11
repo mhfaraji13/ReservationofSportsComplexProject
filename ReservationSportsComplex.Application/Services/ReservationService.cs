@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ReservationSportsComplex.Application.DTOs;
 
 namespace ReservationSportsComplex.Application.Services
 {
@@ -66,6 +67,52 @@ namespace ReservationSportsComplex.Application.Services
             await this.applicationDbContext.SaveChangesAsync(CancellationToken.None);
 
             return booking;
+        }
+
+        public async Task<List<UserBookingDTO>> GetUserBookingsAsync(Guid userId)
+        {
+            return await this.applicationDbContext.Bookings
+                .Include(b => b.TimeSlot).ThenInclude(ts => ts.SportHall)
+                .Where(b => b.UserId == userId)
+                .OrderByDescending(b => b.BookingDate)
+                .Select(b => new UserBookingDTO {
+                    BookingId = b.Id,
+                    SportHallName = b.TimeSlot.SportHall.Name,
+                    StartTime = b.TimeSlot.StartTime,
+                    EndTime = b.TimeSlot.EndTime,
+                    PaidAmount = b.FinalAmount,
+                    ReservedAt = b.BookingDate
+                }).ToListAsync();
+        }
+
+        public async Task<(bool Success, string Message, decimal? NewBalance)> CancelBookingAsync(Guid bookingId, Guid userId)
+        {
+            var booking = await this.applicationDbContext.Bookings
+                .Include(b => b.TimeSlot)
+                .FirstOrDefaultAsync(b => b.Id == bookingId && b.UserId == userId);
+
+            if (booking == null) return (false, "Reservation not found.", null);
+            if (booking.Status == Domain.Enums.BookingStatus.Canceled) return (false, "Already canceled.", null);
+
+            using var transaction = await this.applicationDbContext.BeginTransactionAsync();
+            try {
+                booking.TimeSlot.IsReserved = false;
+                booking.TimeSlot.CurrentRegistrations--;
+
+                var wallet = await this.applicationDbContext.Wallets.FirstOrDefaultAsync(w => w.UserId == userId);
+                if (wallet != null) wallet.Balance += booking.FinalAmount;
+
+                booking.Status = Domain.Enums.BookingStatus.Canceled;
+
+                await this.applicationDbContext.SaveChangesAsync(default);
+                await transaction.CommitAsync();
+
+                return (true, "Success", wallet?.Balance);
+            }
+            catch {
+                await transaction.RollbackAsync();
+                throw; // اجازه بده خطای سرور در کنترلر مدیریت شود
+            }
         }
 
         public async Task GenerateDailySlotsAsync(Guid hallId, DateTime date)
