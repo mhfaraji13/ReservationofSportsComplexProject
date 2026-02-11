@@ -13,10 +13,12 @@ namespace ReservationSportsComplex.API.Controllers
     public class WalletController : ControllerBase
     {
         private readonly IApplicationDbContext _context;
+        private readonly IWalletService _walletService;
 
-        public WalletController(IApplicationDbContext context)
+        public WalletController(IApplicationDbContext context , IWalletService  walletService)
         {
             _context = context;
+            _walletService = walletService;
         }
 
         [HttpPost]
@@ -26,33 +28,15 @@ namespace ReservationSportsComplex.API.Controllers
         {
             if (amount <= 0)
             {
-                return BadRequest("The charge amount must be greater than zero.");
+                return BadRequest("Amount must be greater than zero.");
             }
-
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-            {
-                return Unauthorized();
-            }
-            
-            var userId = Guid.Parse(userIdClaim.Value);
-            
-            var wallet = await _context.Wallets.FirstOrDefaultAsync(w=>w.UserId == userId);
-
-            if (wallet == null)
-            {
-                return NotFound("The Wallet not found For this user");
-            }
-            
-            wallet.Balance += amount;
-            
-            await _context.SaveChangesAsync(default);
-            
-            return Ok(new
-            {
-                Message = "Successfully charged the wallet!",
-                NewBalance = wallet.Balance,
-            });
+            var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+        
+            var result = await _walletService.ChargeWalletAsync(userId, amount);
+        
+            if (!result) return NotFound("Wallet not found.");
+        
+            return Ok("Wallet successfully recharged.");
         }
 
         [HttpGet]
@@ -60,10 +44,9 @@ namespace ReservationSportsComplex.API.Controllers
 
         public async Task<IActionResult> GetBalance()
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            var wallet = await _context.Wallets.FirstOrDefaultAsync(w=>w.UserId == userId);
-            
-            return Ok(new { CurrentBalance = wallet?.Balance ?? 0 });
+            var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+            var balance = await _walletService.GetBalanceAsync(userId);
+            return Ok(new { CurrentBalance = balance });
         }
     }
 }

@@ -26,6 +26,7 @@ builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<ISportHall, SportHallRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IJWTTokenGenerator, JWTTokenGenerator>();
+builder.Services.AddScoped<IWalletService, WalletService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
