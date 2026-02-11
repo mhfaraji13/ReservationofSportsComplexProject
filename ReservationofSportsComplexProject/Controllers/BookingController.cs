@@ -73,5 +73,62 @@ namespace ReservationSportsComplex.API.Controllers
             
             return Ok(bookings);
         }
+
+
+        [HttpPost]
+        [Route("Cancel/{bookingId}")]
+        [Authorize]
+
+        public async Task<IActionResult> CancelBooking(Guid bookingId)
+        {
+            var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+            
+            var booking = await _context.Bookings
+                .Include(b=>b.TimeSlot)
+                .FirstOrDefaultAsync(b=>b.Id == bookingId && b.UserId==userId);
+
+            if (booking == null)
+            {
+                return NotFound("The requested reservation was not found or does not belong to you.");
+            }
+
+            if (booking.Status == Domain.Enums.BookingStatus.Canceled)
+            {
+                return BadRequest("This reservation has already been canceled.");
+            }
+
+            using var transaction = await _context.BeginTransactionAsync();
+
+            try
+            {
+                booking.TimeSlot.IsReserved = false;
+                booking.TimeSlot.CurrentRegistrations--;
+                
+                var wallet = await _context.Wallets.FirstOrDefaultAsync(w=>w.UserId == userId);
+
+                if (wallet != null)
+                {
+                    wallet.Balance += booking.FinalAmount;
+                }
+
+                booking.Status = Domain.Enums.BookingStatus.Canceled;
+                
+                await _context.SaveChangesAsync(default);
+                await transaction.CommitAsync();
+                
+                return Ok(new { Message = "The reservation was successfully canceled and the amount was returned to your wallet.", NewBalance = wallet?.Balance  });
+
+            }
+            catch (Exception )
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, "An error occurred while canceling the reservation.");
+            }
+            
+            
+            
+
+
+        }
     }
 }

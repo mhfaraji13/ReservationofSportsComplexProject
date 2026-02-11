@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace ReservationSportsComplex.Application.Interfaces
 {
@@ -15,6 +16,8 @@ namespace ReservationSportsComplex.Application.Interfaces
         DbSet<TimeSlot> TimeSlots { get; }
         DbSet<Booking> Bookings { get; }
         DbSet<Wallet> Wallets { get; }
+        
+        Task<IDbContextTransaction>  BeginTransactionAsync(CancellationToken cancellationToken = default);
 
         Task<int> SaveChangesAsync (CancellationToken cancellationToken);
     }

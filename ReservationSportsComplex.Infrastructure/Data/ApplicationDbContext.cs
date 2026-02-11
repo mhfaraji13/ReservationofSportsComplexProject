@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace ReservationSportsComplex.Infrastructure.Data
 {
@@ -26,6 +27,11 @@ namespace ReservationSportsComplex.Infrastructure.Data
 
         public DbSet<Wallet> Wallets => Set<Wallet>();
 
+
+        public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            return await Database.BeginTransactionAsync(cancellationToken);
+        }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
